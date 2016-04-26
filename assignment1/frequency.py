@@ -12,8 +12,6 @@ def get_words_in_tweet_text(tweet):
         text = tweet['text']
         text=re.sub(r'\w+:\/{2}[\d\w-]+(\.[\d\w-]+)*(?:(?:\/[^\s/]*))*', '', text)
         words = [word.strip(string.punctuation) for word in text.split()]
-   # print(words)
-        words.append('ciao')
     return words
 
 
@@ -31,8 +29,7 @@ def get_word_count(tweet_file):
          			word_count[w]+=1
          		else:
          			word_count[w]=1
-    #     word_count['ciao']=1
-    #print(total_count)
+   
     word_count.update((x,float(y)/total_count) for x,y in word_count.items())
     return word_count
 
