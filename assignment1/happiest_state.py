@@ -2,6 +2,8 @@ import sys
 import string
 import json
 import re
+# basic script to guess offline the tweet location without using geocoding packages (both off and on-line).
+# The user location is used as a proxy for the tweet location
 
 state_mapping = {
     "alabama": "al",

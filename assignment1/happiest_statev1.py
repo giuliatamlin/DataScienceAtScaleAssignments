@@ -5,7 +5,8 @@ import re
 import geocoder
 
 
-
+# this file makes use of third-party geocoding services through the geocoder module
+# so cannot be ran offline
 
 def read_scores(sent_file):
     scores = {}
