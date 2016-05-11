@@ -1,0 +1,155 @@
+---
+title: "Assignment5, Data Science at Scale, Coursera Specialization (University of Washington)"
+author: "Giulia Gualdi"
+date: "10 maggio 2016"
+output: html_document
+---
+
+
+```{r}
+library(rpart)
+library(ggplot2)
+library(caret)
+library(randomForest)
+library(e1071)
+```
+
+#Questions 1 & 2
+```{r}
+data = read.csv('seaflow_21min.csv')
+nrow(data)
+summary(data)
+```
+
+#Question 3
+
+```{r}
+set.seed(000)
+train_ind = createDataPartition(data$pop,p=0.5)[[1]]#must access the first (and only) element
+#of the list to be used as an index array
+train = data[train_ind,]
+test = data[-train_ind,]
+
+ans = mean(train[,'time'])
+ans
+#340.7668
+```
+
+#Question 4
+```{r}
+#png("plot1.png",width = 480, height = 480)
+ggplot(train, aes(x=chl_small,y=pe,color=pop)) + geom_point(size=1)
+#dev.off()
+#pico & nano
+```
+#Questions 5,6,7
+
+```{r}
+fol <- pop ~ fsc_small + fsc_perp + fsc_big + pe + chl_big + chl_small
+model <- rpart(fol, method="class", data=train)
+print(model)
+#crypto
+#5001.5
+#pe, chl_small
+```
+
+#Question 8
+
+```{r}
+pred = predict(model, newdata = test)
+prediction = (colnames(pred)[max.col(pred,ties.method="first")])
+acc = sum(prediction== as.character(test$pop))/length(prediction)
+acc
+#0.8544967
+```
+
+#Questions 9
+
+```{r}
+model2 <- randomForest(fol, data=train)
+print(model2)
+```
+
+```{r}
+pred2 = predict(model2, newdata = test)
+acc2 = sum(pred2== test$pop)/length(pred2)
+acc2
+#0.9198806
+```
+
+#Question10
+```{r}
+importance(model2)
+#pe,chl_small
+```
+
+#Question 11
+
+```{r}
+model3 = svm(fol, data=train)
+print(model3)
+pred3 = predict(model3, newdata = test)
+acc3 = sum(pred3== test$pop)/length(pred3)
+acc3
+#0.9198253
+
+```
+
+#Question 12
+
+```{r}
+confmat1 = table(pred = prediction, true = test$pop)
+confmat2 = table(pred = pred2, true = test$pop)
+confmat3 = table(pred = pred3, true = test$pop)
+
+confmat1
+
+confmat2
+
+confmat3
+
+#ultra is mistaken for pico
+
+
+```
+
+#Question 13
+
+From 
+```{r}
+summary(data)
+```
+
+we can see that the most likely candidate is fsc_big as it spans quite a small range of values.
+In order to confirm or disprove the assumption we check how many values this variable assumes
+```{r}
+levels(as.factor(data$fsc_big))
+#answer = fsc_big
+```
+
+#Question 14
+```{r}
+#png("plot2.png",width = 480, height = 480)
+ggplot(data, aes(x=time,y=chl_big,color=file_id)) + geom_point(size=1)
+#dev.off()
+```
+
+```{r}
+new_data = data[-which(data$file_id == 208),]
+set.seed(000)
+new_train_ind = createDataPartition(new_data$pop,p=0.5)[[1]]
+new_train = new_data[new_train_ind,]
+new_test = new_data[-new_train_ind,]
+#new_fol <- pop ~ fsc_small + fsc_perp + fsc_big + pe  + chl_small
+model3bis = svm(fol, data=new_train)
+print(model3bis)
+pred3bis = predict(model3bis, newdata = new_test)
+acc3bis = sum(pred3bis== new_test$pop)/length(pred3bis)
+acc3bis
+#0.9721605
+change = -(acc3-acc3bis)
+change
+#0.05233527
+```
+
+
